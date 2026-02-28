@@ -24,7 +24,6 @@
         <p id="streakDisplay" style="color: #ff4d8d; font-weight: bold; font-size: 0.85rem; margin: 0;">🔥 0 Day Streak</p>
       </div>
     </div>
-
     <div class="controls">
       <button id="prevBtn" class="btn">◀</button>
       <button id="nextBtn" class="btn">▶</button>
@@ -36,10 +35,21 @@
     <div id="calendarGrid" class="grid"></div>
   </section>
 
-  <aside class="sidebar">
-    <div class="legendItem"><span>❤️</span> You</div>
-    <div class="legendItem"><span>💖</span> GF</div>
-    <div class="legendItem"><span>💞</span> Both</div>
+  <aside class="sidebar" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <div style="display: flex; gap: 15px;">
+      <div class="legendItem"><span>❤️</span> Aditya</div>
+      <div class="legendItem"><span>💖</span> Vibhuti</div>
+      <div class="legendItem"><span>💞</span> Both</div>
+    </div>
+    
+    <div class="polaroid" id="polaroidFrame">
+      <div class="photo-container">
+        <img id="polaroidImg" src="" alt="Highlight of the week" style="display: none;">
+        <div id="polaroidPlaceholder">Loading...</div>
+      </div>
+      <div class="polaroid-caption">Highlight of the Week ✨</div>
+      <button id="addPhotoBtn" class="add-photo-btn">+</button>
+    </div>
   </aside>
 </div>
 
@@ -47,8 +57,8 @@
   <div class="modal">
     <h3>Edit Day 💕</h3>
     <div class="toggles">
-      <button id="youBtn" class="toggleBtn">❤️ You</button>
-      <button id="gfBtn" class="toggleBtn">💖 GF</button>
+      <button id="youBtn" class="toggleBtn">❤️ Aditya</button>
+      <button id="gfBtn" class="toggleBtn">💖 Vibhuti</button>
     </div>
     <textarea id="noteField" placeholder="Write something cute…"></textarea>
     <div class="modalActions">
@@ -58,10 +68,41 @@
   </div>
 </div>
 
+<div id="photoModal" class="overlay">
+  <div class="modal">
+    <h3>📸 Add a New Memory</h3>
+    <input type="file" id="photoInput" accept="image/*" style="margin: 15px 0;">
+    <div class="modalActions">
+      <button id="closePhotoModalBtn" class="btn">Cancel</button>
+      <button id="savePhotoBtn" class="btn primary">Upload</button>
+    </div>
+  </div>
+</div>
+
+<div id="jarModal" class="overlay">
+  <div class="modal">
+    <h3 id="jarTitle">🍯 Reasons I Love You</h3>
+    <p id="jarDisplay" style="font-style: italic; margin: 15px 0; min-height: 50px;">Click 'Draw a Note' to read one!</p>
+    <p id="jarAuthor" style="font-size: 12px; color: var(--accent); text-align: right; margin-bottom: 15px;"></p>
+    
+    <textarea id="newJarNote" placeholder="Write a new reason here..." style="display: none;"></textarea>
+    
+    <div class="modalActions" id="jarReadActions">
+      <button id="closeJarBtn" class="btn">Close</button>
+      <button id="drawNoteBtn" class="btn primary">Draw a Note</button>
+      <button id="showAddNoteBtn" class="btn">✏️ Add</button>
+    </div>
+
+    <div class="modalActions" id="jarWriteActions" style="display: none;">
+      <button id="cancelJarWriteBtn" class="btn">Cancel</button>
+      <button id="saveJarNoteBtn" class="btn primary">Save Reason</button>
+    </div>
+  </div>
+</div>
+
 <div id="songModal" class="overlay">
   <div class="modal">
     <h3>🎶 YouTube Song of the Day</h3>
-    <p style="font-size: 12px; color: var(--muted); margin-top: 0;">Paste any YouTube link here!</p>
     <input type="text" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." style="width: 100%; padding: 10px; margin: 15px 0; border-radius: 10px; border: none; background: rgba(0,0,0,0.2); color: white;">
     <div class="modalActions">
       <button id="closeSongModalBtn" class="btn">Cancel</button>
@@ -70,8 +111,14 @@
   </div>
 </div>
 
-<button id="pingBtn" class="pingBtn">💭</button>
-<div id="toast" class="toast">Adi is thinking of you! 🥰</div>
+<button id="jarBtn" class="floatBtn jarBtn">🍯</button>
+<button id="pingBtn" class="floatBtn pingBtn">💭</button>
+
+<div id="toast" class="toast">Thinking of you! 🥰</div>
+<div id="missedPingToast" class="missed-ping-toast">
+  <span id="missedPingText"></span>
+  <button id="dismissPingBtn" class="dismiss-btn">❤️</button>
+</div>
 
 <div id="miniPlayer" class="mini-player">
   <iframe id="ytIframe" width="160" height="90" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
