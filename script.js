@@ -141,4 +141,26 @@ document.getElementById("prevBtn").onclick = () => {
   renderCalendar();
 };
 
-document.getElementById("
+document.getElementById("nextBtn").onclick = () => {
+  currentView.setMonth(currentView.getMonth() + 1);
+  renderCalendar();
+};
+
+document.getElementById("closeBtn").onclick = () => overlay.style.display = "none";
+youBtn.onclick = () => youBtn.classList.toggle("active");
+gfBtn.onclick = () => gfBtn.classList.toggle("active");
+
+// Init Weekdays
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const weekdayRow = document.getElementById("weekdayRow");
+if (weekdayRow) {
+  WEEKDAYS.forEach(d => {
+    const el = document.createElement("div");
+    el.textContent = d;
+    weekdayRow.appendChild(el);
+  });
+}
+
+// Initialize the app
+createHearts();
+renderCalendar();
