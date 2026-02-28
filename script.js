@@ -9,7 +9,7 @@ const firebaseConfig = {
   messagingSenderId: "790416512120",
   appId: "1:790416512120:web:7c2ef26f2785d43cbe098d",
   measurementId: "G-VP5HLM4YMZ",
-  databaseURL: "https://realtime-database-a8d07-default-rtdb.firebaseio.com" // Added this for Realtime Database
+  databaseURL: "https://realtime-database-a8d07-default-rtdb.firebaseio.com"
 };
 
 // Initialize Firebase
@@ -103,7 +103,7 @@ function updateStreak() {
   streakDisplay.textContent = `🔥 ${streak} Day Streak`;
 }
 
-// Real-time Cloud Sync (Listens for updates from her phone)
+// Real-time Cloud Sync
 onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
@@ -123,7 +123,7 @@ function openModal(key) {
   noteField.value = store[key]?.note || "";
 }
 
-// Save to Cloud (Sends updates to her phone)
+// Save to Cloud
 document.getElementById("saveModalBtn").onclick = () => {
   const data = {
     you: youBtn.classList.contains("active"),
@@ -141,25 +141,4 @@ document.getElementById("prevBtn").onclick = () => {
   renderCalendar();
 };
 
-document.getElementById("nextBtn").onclick = () => {
-  currentView.setMonth(currentView.getMonth() + 1);
-  renderCalendar();
-};
-
-document.getElementById("closeBtn").onclick = () => overlay.style.display = "none";
-youBtn.onclick = () => youBtn.classList.toggle("active");
-gfBtn.onclick = () => gfBtn.classList.toggle("active");
-
-// Init Weekdays
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const weekdayRow = document.getElementById("weekdayRow");
-if (weekdayRow) {
-  WEEKDAYS.forEach(d => {
-    const el = document.createElement("div");
-    el.textContent = d;
-    weekdayRow.appendChild(el);
-  });
-}
-
-createHearts();
-renderCalendar();
+document.getElementById("

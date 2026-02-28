@@ -19,7 +19,6 @@ body {
   overflow: hidden;
 }
 
-/* Floating Hearts Background */
 .bg-bubbles {
   position: fixed;
   inset: 0;
@@ -99,7 +98,6 @@ body {
   to { transform: scale(1); opacity: 1; }
 }
 
-/* Modal Styling */
 .overlay {
   position: fixed;
   inset: 0;
