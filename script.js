@@ -17,27 +17,80 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'calendar_data/'); 
 const pingRef = ref(db, 'ping_data/'); 
+const songRef = ref(db, 'daily_yt_song/');
 
 let store = {};
 let currentView = new Date();
 let activeDate = null;
 let initialPingLoad = true;
+let currentVideoId = "";
 
 // DOM Elements
+const welcomeScreen = document.getElementById("welcomeScreen");
+const enterBtn = document.getElementById("enterBtn");
 const calendarGrid = document.getElementById("calendarGrid");
 const monthDisplay = document.getElementById("monthDisplay");
 const overlay = document.getElementById("overlay");
 const noteField = document.getElementById("noteField");
 const youBtn = document.getElementById("youBtn");
 const gfBtn = document.getElementById("gfBtn");
-const songBtn = document.getElementById("songBtn"); 
 const streakDisplay = document.getElementById("streakDisplay");
 const pingBtn = document.getElementById("pingBtn");
 const toast = document.getElementById("toast");
-const bgMusic = document.getElementById("bgMusic"); 
+const songModal = document.getElementById("songModal");
+const editSongIcon = document.getElementById("editSongIcon");
+const ytUrlInput = document.getElementById("ytUrlInput");
+const ytIframe = document.getElementById("ytIframe");
 
 function iso(d) { return d.toISOString().slice(0, 10); }
 
+// --- WELCOME SCREEN & AUTOPLAY HACK ---
+enterBtn.onclick = () => {
+  welcomeScreen.style.opacity = "0";
+  setTimeout(() => welcomeScreen.style.display = "none", 800);
+  
+  if (currentVideoId) {
+    ytIframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&loop=1&playlist=${currentVideoId}&controls=1`;
+  }
+};
+
+// --- YOUTUBE SONG LOGIC ---
+function extractYTId(url) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+onValue(songRef, (snapshot) => {
+  const data = snapshot.val();
+  if (data && data.videoId) {
+    currentVideoId = data.videoId;
+    if (welcomeScreen.style.display === "none") {
+      ytIframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&loop=1&playlist=${currentVideoId}&controls=1`;
+    }
+  }
+});
+
+editSongIcon.onclick = () => {
+  songModal.style.display = "flex";
+  ytUrlInput.value = ""; 
+};
+
+document.getElementById("saveSongBtn").onclick = () => {
+  const videoId = extractYTId(ytUrlInput.value);
+  if (videoId) {
+    set(songRef, { videoId: videoId });
+    songModal.style.display = "none";
+  } else {
+    alert("Oops! That doesn't look like a valid YouTube link.");
+  }
+};
+
+document.getElementById("closeSongModalBtn").onclick = () => {
+  songModal.style.display = "none";
+};
+
+// --- CALENDAR LOGIC ---
 function createHearts() {
   const container = document.getElementById('bubbleContainer');
   if (!container) return;
@@ -57,9 +110,15 @@ function renderCalendar() {
   const year = currentView.getFullYear();
   const month = currentView.getMonth();
   
-  if (monthDisplay) {
-    monthDisplay.textContent = currentView.toLocaleDateString('default', { month: 'long', year: 'numeric' });
-  }
+  // Keep the edit icon intact when updating the month text
+  const monthText = currentView.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+  monthDisplay.innerHTML = `${monthText} <span id="editSongIcon" style="cursor: pointer; font-size: 0.8rem;" title="Change Song">✏️🎵</span>`;
+  
+  // Re-attach the click listener since we overwrote the innerHTML
+  document.getElementById("editSongIcon").onclick = () => {
+    songModal.style.display = "flex";
+    ytUrlInput.value = "";
+  };
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -81,11 +140,6 @@ function renderCalendar() {
       if (store[key].you && store[key].gf) marker = "💞";
       else if (store[key].you) marker = "❤️";
       else if (store[key].gf) marker = "💖";
-    }
-    
-    // Show a music note icon if a song is attached to this day
-    if (store[key]?.song) {
-      marker += " 🎵";
     }
 
     cell.innerHTML = `<span>${i}</span><span class="marker">${marker}</span>`;
@@ -136,7 +190,6 @@ onValue(pingRef, (snapshot) => {
     return;
   }
   const data = snapshot.val();
-  // Fire if the ping happened less than 10 seconds ago
   if (data && (Date.now() - data.timestamp < 10000)) {
     triggerEruption();
   }
@@ -164,47 +217,30 @@ function triggerEruption() {
   }
 }
 
-// --- MODAL, MUSIC & NAVIGATION LOGIC ---
-
+// --- MODAL & NAVIGATION LOGIC ---
 function openModal(key) {
   activeDate = key;
   overlay.style.display = "flex";
   
-  // Load the saved toggles
   youBtn.classList.toggle("active", store[key]?.you || false);
   gfBtn.classList.toggle("active", store[key]?.gf || false);
-  songBtn.classList.toggle("active", store[key]?.song || false);
   noteField.value = store[key]?.note || "";
-
-  // If the memory has a song, play it
-  if (store[key]?.song) {
-    bgMusic.volume = 0.5; // Soft volume
-    bgMusic.play().catch(e => console.log("User must interact first before audio plays"));
-  } else {
-    bgMusic.pause();
-    bgMusic.currentTime = 0;
-  }
-}
-
-function closeAndStopMusic() {
-  overlay.style.display = "none";
-  bgMusic.pause();
-  bgMusic.currentTime = 0;
 }
 
 document.getElementById("saveModalBtn").onclick = () => {
   const data = {
     you: youBtn.classList.contains("active"),
     gf: gfBtn.classList.contains("active"),
-    song: songBtn.classList.contains("active"), // Save the song status to Firebase
     note: noteField.value
   };
 
   set(ref(db, 'calendar_data/' + activeDate), data);
-  closeAndStopMusic();
+  overlay.style.display = "none";
 };
 
-document.getElementById("closeBtn").onclick = closeAndStopMusic;
+document.getElementById("closeBtn").onclick = () => {
+  overlay.style.display = "none";
+};
 
 document.getElementById("prevBtn").onclick = () => {
   currentView.setMonth(currentView.getMonth() - 1);
@@ -216,10 +252,8 @@ document.getElementById("nextBtn").onclick = () => {
   renderCalendar();
 };
 
-// Toggle Buttons
 youBtn.onclick = () => youBtn.classList.toggle("active");
 gfBtn.onclick = () => gfBtn.classList.toggle("active");
-songBtn.onclick = () => songBtn.classList.toggle("active");
 
 // Init Weekdays
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

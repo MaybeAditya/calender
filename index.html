@@ -9,6 +9,10 @@
 </head>
 <body>
 
+<div id="welcomeScreen" class="welcome-screen">
+  <button id="enterBtn" class="enter-btn">Tap to Open 💕</button>
+</div>
+
 <div class="bg-bubbles" id="bubbleContainer"></div>
 
 <div class="app">
@@ -16,7 +20,7 @@
     <div class="brand">
       <div class="logo">💕</div>
       <div>
-        <h1 id="monthDisplay">Month Year</h1>
+        <h1 id="monthDisplay">Month Year <span id="editSongIcon" style="cursor: pointer; font-size: 0.8rem;" title="Change Song">✏️🎵</span></h1>
         <p id="streakDisplay" style="color: #ff4d8d; font-weight: bold; font-size: 0.85rem; margin: 0;">🔥 0 Day Streak</p>
       </div>
     </div>
@@ -45,7 +49,6 @@
     <div class="toggles">
       <button id="youBtn" class="toggleBtn">❤️ You</button>
       <button id="gfBtn" class="toggleBtn">💖 GF</button>
-      <button id="songBtn" class="toggleBtn">🎶 Song</button>
     </div>
     <textarea id="noteField" placeholder="Write something cute…"></textarea>
     <div class="modalActions">
@@ -55,10 +58,24 @@
   </div>
 </div>
 
+<div id="songModal" class="overlay">
+  <div class="modal">
+    <h3>🎶 YouTube Song of the Day</h3>
+    <p style="font-size: 12px; color: var(--muted); margin-top: 0;">Paste any YouTube link here!</p>
+    <input type="text" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." style="width: 100%; padding: 10px; margin: 15px 0; border-radius: 10px; border: none; background: rgba(0,0,0,0.2); color: white;">
+    <div class="modalActions">
+      <button id="closeSongModalBtn" class="btn">Cancel</button>
+      <button id="saveSongBtn" class="btn primary">Update Song</button>
+    </div>
+  </div>
+</div>
+
 <button id="pingBtn" class="pingBtn">💭</button>
 <div id="toast" class="toast">Adi is thinking of you! 🥰</div>
 
-<audio id="bgMusic" src="./those-eyes.mp3" loop></audio>
+<div id="miniPlayer" class="mini-player">
+  <iframe id="ytIframe" width="160" height="90" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+</div>
 
 <script type="module" src="./script.js"></script>
 </body>

@@ -19,6 +19,32 @@ body {
   overflow: hidden;
 }
 
+/* Welcome Screen */
+.welcome-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; 
+  transition: opacity 0.8s ease;
+}
+
+.enter-btn {
+  background: linear-gradient(135deg, var(--accent), #ff85a1);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(255, 77, 141, 0.4);
+  animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both, pulse 2s infinite 1s;
+}
+
+/* Background Hearts */
 .bg-bubbles {
   position: fixed;
   inset: 0;
@@ -152,10 +178,10 @@ textarea {
 .btn.primary { background: var(--accent); color: white; }
 .sidebar { display: flex; justify-content: space-around; margin-top: 20px; font-size: 12px; }
 
-/* --- PING BUTTON & TOAST STYLES --- */
+/* Ping Button & Toast */
 .pingBtn {
   position: fixed;
-  bottom: 25px;
+  bottom: 120px; /* Moved up slightly to accommodate YT player */
   right: 25px;
   width: 55px;
   height: 55px;
@@ -209,4 +235,24 @@ textarea {
 @keyframes explode {
   0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
   100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.5); }
+}
+
+/* Mini YouTube Player */
+.mini-player {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 160px;
+  height: 90px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+  border: 2px solid var(--accent);
+  z-index: 40;
+  background: black;
+  transition: transform 0.3s ease;
+}
+
+.mini-player:hover {
+  transform: scale(1.05);
 }
