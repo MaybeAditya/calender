@@ -16,10 +16,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'calendar_data/'); 
+const pingRef = ref(db, 'ping_data/'); // New reference for the ping feature
 
 let store = {};
 let currentView = new Date();
 let activeDate = null;
+let initialPingLoad = true;
 
 // DOM Elements
 const calendarGrid = document.getElementById("calendarGrid");
@@ -29,6 +31,8 @@ const noteField = document.getElementById("noteField");
 const youBtn = document.getElementById("youBtn");
 const gfBtn = document.getElementById("gfBtn");
 const streakDisplay = document.getElementById("streakDisplay");
+const pingBtn = document.getElementById("pingBtn");
+const toast = document.getElementById("toast");
 
 function iso(d) { return d.toISOString().slice(0, 10); }
 
@@ -103,7 +107,7 @@ function updateStreak() {
   streakDisplay.textContent = `🔥 ${streak} Day Streak`;
 }
 
-// Real-time Cloud Sync
+// Real-time Cloud Sync for Calendar
 onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
@@ -115,6 +119,51 @@ onValue(dbRef, (snapshot) => {
   updateStreak();
 });
 
+// --- REAL-TIME PING LOGIC ---
+
+pingBtn.onclick = () => {
+  set(pingRef, { timestamp: Date.now() });
+  pingBtn.textContent = "✨";
+  setTimeout(() => pingBtn.textContent = "💭", 1000);
+};
+
+onValue(pingRef, (snapshot) => {
+  if (initialPingLoad) {
+    initialPingLoad = false;
+    return;
+  }
+
+  const data = snapshot.val();
+  if (data && (Date.now() - data.timestamp < 10000)) {
+    triggerEruption();
+  }
+});
+
+function triggerEruption() {
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 4000);
+
+  for (let i = 0; i < 40; i++) {
+    const heart = document.createElement("div");
+    heart.className = "fastHeart";
+    heart.textContent = Math.random() > 0.5 ? "💖" : "✨";
+    
+    heart.style.left = "50%";
+    heart.style.bottom = "20px";
+    
+    const tx = (Math.random() - 0.5) * 500 + "px"; 
+    const ty = (Math.random() * -800) - 200 + "px"; 
+    
+    heart.style.setProperty('--tx', tx);
+    heart.style.setProperty('--ty', ty);
+    
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1500);
+  }
+}
+
+// --- MODAL & NAVIGATION LOGIC ---
+
 function openModal(key) {
   activeDate = key;
   overlay.style.display = "flex";
@@ -123,7 +172,6 @@ function openModal(key) {
   noteField.value = store[key]?.note || "";
 }
 
-// Save to Cloud
 document.getElementById("saveModalBtn").onclick = () => {
   const data = {
     you: youBtn.classList.contains("active"),
@@ -135,7 +183,6 @@ document.getElementById("saveModalBtn").onclick = () => {
   overlay.style.display = "none";
 };
 
-// Navigation & Toggles
 document.getElementById("prevBtn").onclick = () => {
   currentView.setMonth(currentView.getMonth() - 1);
   renderCalendar();
@@ -161,6 +208,6 @@ if (weekdayRow) {
   });
 }
 
-// Initialize the app
+// Start the App
 createHearts();
 renderCalendar();
