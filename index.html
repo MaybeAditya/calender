@@ -4,33 +4,25 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Our Cute Calendar 💖</title>
-
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 
-<div class="bg-bubbles">
-  <div class="bubble b1"></div>
-  <div class="bubble b2"></div>
-</div>
+<div class="bg-bubbles" id="bubbleContainer"></div>
 
 <div class="app">
   <header class="header">
     <div class="brand">
       <div class="logo">💕</div>
       <div>
-        <h1>Our Little Calendar</h1>
-        <p class="sub">cute, private, remembers everything</p>
+        <h1 id="monthDisplay">Month Year</h1>
+        <p class="sub">remembers everything</p>
       </div>
     </div>
 
     <div class="controls">
       <button id="prevBtn" class="btn">◀</button>
-      <button id="todayBtn" class="btn ghost">Today</button>
       <button id="nextBtn" class="btn">▶</button>
     </div>
   </header>
@@ -41,14 +33,12 @@
   </section>
 
   <aside class="sidebar">
-    <h3>Legend</h3>
-    <div class="legendItem">❤️ you</div>
-    <div class="legendItem">💖 gf</div>
-    <div class="legendItem">💞 both</div>
+    <div class="legendItem"><span>❤️</span> You</div>
+    <div class="legendItem"><span>💖</span> GF</div>
+    <div class="legendItem"><span>💞</span> Both</div>
   </aside>
 </div>
 
-<!-- Modal -->
 <div id="overlay" class="overlay">
   <div class="modal">
     <h3>Edit Day 💕</h3>
@@ -59,7 +49,7 @@
     <textarea id="noteField" placeholder="Write something cute…"></textarea>
     <div class="modalActions">
       <button id="closeBtn" class="btn">Close</button>
-      <button id="saveModalBtn" class="btn primary">Save</button>
+      <button id="saveModalBtn" class="btn primary">Save Changes</button>
     </div>
   </div>
 </div>

@@ -2,74 +2,108 @@ const KEY = "cuteCoupleCalendar";
 let store = JSON.parse(localStorage.getItem(KEY)) || {};
 
 const calendarGrid = document.getElementById("calendarGrid");
-const weekdayRow = document.getElementById("weekdayRow");
-
+const monthDisplay = document.getElementById("monthDisplay");
 const overlay = document.getElementById("overlay");
+const noteField = document.getElementById("noteField");
 const youBtn = document.getElementById("youBtn");
 const gfBtn = document.getElementById("gfBtn");
-const noteField = document.getElementById("noteField");
 
-const saveBtn = document.getElementById("saveModalBtn");
-const closeBtn = document.getElementById("closeBtn");
-
-const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 let activeDate = null;
-let view = new Date();
+let currentView = new Date();
 
-function iso(d){ return d.toISOString().slice(0,10); }
+function iso(d) { return d.toISOString().slice(0, 10); }
 
-function renderWeekdays(){
-  weekdayRow.innerHTML="";
-  WEEKDAYS.forEach(d=>{
-    const el=document.createElement("div");
-    el.textContent=d;
-    weekdayRow.appendChild(el);
-  });
+// Generate Floating Hearts
+function createHearts() {
+  const container = document.getElementById('bubbleContainer');
+  setInterval(() => {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.innerHTML = Math.random() > 0.5 ? '❤️' : '💖';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    container.appendChild(heart);
+    setTimeout(() => heart.remove(), 10000);
+  }, 800);
 }
 
-function renderCalendar(){
-  calendarGrid.innerHTML="";
-  const y=view.getFullYear();
-  const m=view.getMonth();
-  const days=new Date(y,m+1,0).getDate();
+function renderCalendar() {
+  calendarGrid.innerHTML = "";
+  const year = currentView.getFullYear();
+  const month = currentView.getMonth();
+  
+  monthDisplay.textContent = currentView.toLocaleDateString('default', { month: 'long', year: 'numeric' });
 
-  for(let i=1;i<=days;i++){
-    const d=new Date(y,m,i);
-    const key=iso(d);
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    const cell=document.createElement("div");
-    cell.className="day";
-    cell.textContent=i;
+  // Offset for first day of week
+  for (let i = 0; i < firstDay; i++) {
+    calendarGrid.appendChild(document.createElement("div"));
+  }
 
-    if(store[key]) cell.classList.add("hasData");
+  for (let i = 1; i <= daysInMonth; i++) {
+    const d = new Date(year, month, i);
+    const key = iso(d);
+    const cell = document.createElement("div");
+    cell.className = "day";
+    cell.style.animationDelay = `${i * 0.02}s`;
+    
+    let marker = "";
+    if (store[key]) {
+      cell.classList.add("hasData");
+      if (store[key].you && store[key].gf) marker = "💞";
+      else if (store[key].you) marker = "❤️";
+      else if (store[key].gf) marker = "💖";
+    }
 
-    cell.onclick=()=>openModal(key);
+    cell.innerHTML = `<span>${i}</span><span class="marker">${marker}</span>`;
+    cell.onclick = () => openModal(key);
     calendarGrid.appendChild(cell);
   }
 }
 
-function openModal(key){
-  activeDate=key;
-  overlay.style.display="flex";
-  youBtn.classList.toggle("active",store[key]?.you);
-  gfBtn.classList.toggle("active",store[key]?.gf);
-  noteField.value=store[key]?.note||"";
+function openModal(key) {
+  activeDate = key;
+  overlay.style.display = "flex";
+  youBtn.classList.toggle("active", store[key]?.you);
+  gfBtn.classList.toggle("active", store[key]?.gf);
+  noteField.value = store[key]?.note || "";
 }
 
-saveBtn.onclick=()=>{
-  store[activeDate]={
-    you:youBtn.classList.contains("active"),
-    gf:gfBtn.classList.contains("active"),
-    note:noteField.value
+document.getElementById("saveModalBtn").onclick = () => {
+  store[activeDate] = {
+    you: youBtn.classList.contains("active"),
+    gf: gfBtn.classList.contains("active"),
+    note: noteField.value
   };
-  localStorage.setItem(KEY,JSON.stringify(store));
-  overlay.style.display="none";
+  localStorage.setItem(KEY, JSON.stringify(store));
+  overlay.style.display = "none";
   renderCalendar();
 };
 
-closeBtn.onclick=()=>overlay.style.display="none";
-youBtn.onclick=()=>youBtn.classList.toggle("active");
-gfBtn.onclick=()=>gfBtn.classList.toggle("active");
+document.getElementById("prevBtn").onclick = () => {
+  currentView.setMonth(currentView.getMonth() - 1);
+  renderCalendar();
+};
 
-renderWeekdays();
+document.getElementById("nextBtn").onclick = () => {
+  currentView.setMonth(currentView.getMonth() + 1);
+  renderCalendar();
+};
+
+document.getElementById("closeBtn").onclick = () => overlay.style.display = "none";
+youBtn.onclick = () => youBtn.classList.toggle("active");
+gfBtn.onclick = () => gfBtn.classList.toggle("active");
+
+// Init
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const weekdayRow = document.getElementById("weekdayRow");
+WEEKDAYS.forEach(d => {
+  const el = document.createElement("div");
+  el.textContent = d;
+  weekdayRow.appendChild(el);
+});
+
+createHearts();
 renderCalendar();
