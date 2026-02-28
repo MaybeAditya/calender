@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'calendar_data/'); 
-const pingRef = ref(db, 'ping_data/'); // New reference for the ping feature
+const pingRef = ref(db, 'ping_data/'); 
 
 let store = {};
 let currentView = new Date();
@@ -30,13 +30,14 @@ const overlay = document.getElementById("overlay");
 const noteField = document.getElementById("noteField");
 const youBtn = document.getElementById("youBtn");
 const gfBtn = document.getElementById("gfBtn");
+const songBtn = document.getElementById("songBtn"); 
 const streakDisplay = document.getElementById("streakDisplay");
 const pingBtn = document.getElementById("pingBtn");
 const toast = document.getElementById("toast");
+const bgMusic = document.getElementById("bgMusic"); 
 
 function iso(d) { return d.toISOString().slice(0, 10); }
 
-// Floating Hearts Generator
 function createHearts() {
   const container = document.getElementById('bubbleContainer');
   if (!container) return;
@@ -51,7 +52,6 @@ function createHearts() {
   }, 800);
 }
 
-// Render Calendar Logic
 function renderCalendar() {
   calendarGrid.innerHTML = "";
   const year = currentView.getFullYear();
@@ -82,6 +82,11 @@ function renderCalendar() {
       else if (store[key].you) marker = "❤️";
       else if (store[key].gf) marker = "💖";
     }
+    
+    // Show a music note icon if a song is attached to this day
+    if (store[key]?.song) {
+      marker += " 🎵";
+    }
 
     cell.innerHTML = `<span>${i}</span><span class="marker">${marker}</span>`;
     cell.onclick = () => openModal(key);
@@ -89,7 +94,6 @@ function renderCalendar() {
   }
 }
 
-// Calculate Streak
 function updateStreak() {
   if (!streakDisplay) return;
   let streak = 0;
@@ -107,7 +111,7 @@ function updateStreak() {
   streakDisplay.textContent = `🔥 ${streak} Day Streak`;
 }
 
-// Real-time Cloud Sync for Calendar
+// Real-time Cloud Sync for Calendar Data
 onValue(dbRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
@@ -120,7 +124,6 @@ onValue(dbRef, (snapshot) => {
 });
 
 // --- REAL-TIME PING LOGIC ---
-
 pingBtn.onclick = () => {
   set(pingRef, { timestamp: Date.now() });
   pingBtn.textContent = "✨";
@@ -132,8 +135,8 @@ onValue(pingRef, (snapshot) => {
     initialPingLoad = false;
     return;
   }
-
   const data = snapshot.val();
+  // Fire if the ping happened less than 10 seconds ago
   if (data && (Date.now() - data.timestamp < 10000)) {
     triggerEruption();
   }
@@ -147,7 +150,6 @@ function triggerEruption() {
     const heart = document.createElement("div");
     heart.className = "fastHeart";
     heart.textContent = Math.random() > 0.5 ? "💖" : "✨";
-    
     heart.style.left = "50%";
     heart.style.bottom = "20px";
     
@@ -162,26 +164,47 @@ function triggerEruption() {
   }
 }
 
-// --- MODAL & NAVIGATION LOGIC ---
+// --- MODAL, MUSIC & NAVIGATION LOGIC ---
 
 function openModal(key) {
   activeDate = key;
   overlay.style.display = "flex";
+  
+  // Load the saved toggles
   youBtn.classList.toggle("active", store[key]?.you || false);
   gfBtn.classList.toggle("active", store[key]?.gf || false);
+  songBtn.classList.toggle("active", store[key]?.song || false);
   noteField.value = store[key]?.note || "";
+
+  // If the memory has a song, play it
+  if (store[key]?.song) {
+    bgMusic.volume = 0.5; // Soft volume
+    bgMusic.play().catch(e => console.log("User must interact first before audio plays"));
+  } else {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
+}
+
+function closeAndStopMusic() {
+  overlay.style.display = "none";
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
 }
 
 document.getElementById("saveModalBtn").onclick = () => {
   const data = {
     you: youBtn.classList.contains("active"),
     gf: gfBtn.classList.contains("active"),
+    song: songBtn.classList.contains("active"), // Save the song status to Firebase
     note: noteField.value
   };
 
   set(ref(db, 'calendar_data/' + activeDate), data);
-  overlay.style.display = "none";
+  closeAndStopMusic();
 };
+
+document.getElementById("closeBtn").onclick = closeAndStopMusic;
 
 document.getElementById("prevBtn").onclick = () => {
   currentView.setMonth(currentView.getMonth() - 1);
@@ -193,9 +216,10 @@ document.getElementById("nextBtn").onclick = () => {
   renderCalendar();
 };
 
-document.getElementById("closeBtn").onclick = () => overlay.style.display = "none";
+// Toggle Buttons
 youBtn.onclick = () => youBtn.classList.toggle("active");
 gfBtn.onclick = () => gfBtn.classList.toggle("active");
+songBtn.onclick = () => songBtn.classList.toggle("active");
 
 // Init Weekdays
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

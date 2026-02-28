@@ -152,7 +152,7 @@ textarea {
 .btn.primary { background: var(--accent); color: white; }
 .sidebar { display: flex; justify-content: space-around; margin-top: 20px; font-size: 12px; }
 
-/* --- PING BUTTON STYLES --- */
+/* --- PING BUTTON & TOAST STYLES --- */
 .pingBtn {
   position: fixed;
   bottom: 25px;
