@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Our Cute Calendar 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#2b0a1f; --bg2:#4b1030; --card:#3b0f29; --accent:#ff4d8d; --muted:#cfa5bf;
+  }
+  *{box-sizing:border-box;font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",sans-serif}
+  body{
+    margin:0; min-height:100vh;
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    display:flex; align-items:center; justify-content:center; padding:28px;
+    color:#fff;
+  }
+
+  .app {
+    width: 920px;
+    max-width: calc(100% - 40px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+    border-radius:20px;
+    padding:18px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+    display:grid; gap:12px;
+    grid-template-columns: 1fr 360px;
+  }
+
+  /* header */
+  .header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .logo {
+    background: linear-gradient(135deg,#ff9ac7,#ff4d8d);
+    width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 6px 18px rgba(255,77,141,.18);
+    transform: rotate(-6deg);
+  }
+  h1{ margin:0; font-size:18px; font-weight:700; letter-spacing:0.2px }
+  .sub { color:var(--muted); font-size:13px }
+
+  /* controls */
+  .controls { display:flex; gap:8px; align-items:center; }
+  .btn { background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600; transition: transform .12s }
+  .btn:hover { transform: translateY(-3px) }
+  .btn.primary { background:var(--accent); border:none; box-shadow: 0 8px 20px rgba(255,77,141,.18) }
+  .btn.ghost { background:transparent; opacity:.9 }
+
+  /* calendar area */
+  .calendarWrap { padding:12px; border-radius:16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) }
+  .monthNav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .monthName { font-weight:600; font-size:16px }
+  .grid {
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap:8px;
+  }
+
+  .weekday { text-align:center; color:var(--muted); font-size:12px; padding:6px 0 }
+  .day {
+    min-height:86px;
+    background: rgba(0,0,0,0.12);
+    border-radius:12px;
+    padding:8px;
+    position:relative;
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+    display:flex; flex-direction:column; gap:6px;
+    overflow:hidden;
+  }
+  .day:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.55) }
+  .day.outside { opacity:0.18; pointer-events:none }
+  .dateNum { font-weight:700; font-size:14px; opacity:0.95 }
+  .emoji { margin-top:auto; font-size:20px; text-align:right; transition: transform .25s; }
+
+  /* badges */
+  .todayBadge {
+    position:absolute; right:10px; top:8px;
+    background: rgba(255,255,255,0.06); padding:4px 8px; border-radius:8px; font-size:11px; color:var(--muted);
+  }
+
+  /* sidebar */
+  .sidebar { padding:12px; border-radius:16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04)); display:flex; flex-direction:column; gap:12px; }
+  .stats { background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(0,0,0,0.04)); padding:12px; border-radius:12px; }
+  .legend { display:flex; gap:8px; align-items:center; font-size:13px; color:var(--muted) }
+  .legendItem { display:flex; gap:8px; align-items:center; background: rgba(255,255,255,0.02); padding:8px;border-radius:10px }
+  .small { font-size:13px; color:var(--muted) }
+
+  /* modal */
+  .overlay { position:fixed; inset:0; background:rgba(11,6,12,0.7); display:flex; align-items:center; justify-content:center; z-index:999; }
+  .modal { width:380px; background:linear-gradient(180deg,#4b1030,#3b0f29); border-radius:14px; padding:14px; box-shadow:0 30px 80px rgba(0,0,0,.6); color:#fff }
+  .modal h3 { margin:0 0 8px 0 }
+  .toggles { display:flex; gap:10px; margin:8px 0 }
+  .toggleBtn { padding:8px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); cursor:pointer; font-weight:700; transition: transform .12s }
+  .toggleBtn.active { background:linear-gradient(90deg,#ff9ac7,var(--accent)); color:#fff; transform:scale(1.03); box-shadow: 0 10px 30px rgba(255,77,141,0.12) }
+  textarea.noteField { width:100%; min-height:86px; background:rgba(0,0,0,0.12); border:none; padding:10px; border-radius:10px; color:#fff; resize:vertical }
+  .modalActions { display:flex; gap:8px; margin-top:10px; justify-content:space-between; }
+
+  /* cute heart animation for "both" */
+  .heartPulse { animation:heartbeat 0.9s infinite; }
+  @keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.08); }
+    40% { transform: scale(1); }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  /* responsive */
+  @media (max-width:920px){
+    .app { grid-template-columns: 1fr; }
+    .sidebar { order:2 }
+  }
+
+  .footer { font-size:12px; color:var(--muted); text-align:center; margin-top:8px }
+
+  /* ===== EXTRA CUTE ANIMATIONS ===== */
+
+  /* floating hearts */
+  .floating-heart {
+    position: fixed;
+    font-size: 22px;
+    animation: floatUp 1.4s ease-out forwards;
+    pointer-events: none;
+    z-index: 9999;
+    transform-origin: center;
+  }
+  @keyframes floatUp {
+    from { transform: translateY(0) scale(1); opacity:1; }
+    to { transform: translateY(-140px) scale(1.6); opacity:0; }
+  }
+
+  /* sparkle hover */
+  .day::after {
+    content: "✨";
+    position: absolute;
+    opacity: 0;
+    right: 8px;
+    bottom: 8px;
+    font-size: 14px;
+    transition: 0.22s;
+    transform: rotate(0deg);
+  }
+  .day:hover::after {
+    opacity: 1;
+    transform: rotate(18deg) translateY(-3px);
+  }
+
+  /* button squish */
+  .btn.primary:active, .btn:active { transform: scale(0.96) translateY(0); }
+
+  /* modal pop */
+  .modal { animation: popIn 0.22s cubic-bezier(.2,.9,.2,1); }
+  @keyframes popIn {
+    from { transform: translateY(6px) scale(.98); opacity:0; }
+    to { transform: translateY(0) scale(1); opacity:1; }
+  }
+
+  /* glow for filled days */
+  .day.hasData {
+    box-shadow: 0 0 0 1px rgba(255,77,141,0.12),
+                0 12px 30px rgba(255,77,141,0.08);
+  }
+
+  /* micro bounce on emoji */
+  .emoji.bouncy { transform: translateY(-4px) scale(1.06); transition: transform .18s; }
+
+  /* subtle background floating circles */
+  .bg-bubbles { position: absolute; inset:0; pointer-events:none; z-index:0; opacity:0.05 }
+  .bubble { position:absolute; border-radius:50%; background: radial-gradient(circle at 30% 30%, #ff9ac7, #ff4d8d); filter: blur(20px); }
+</style>
+</head>
+<body>
+
+<!-- optional decorative bubbles -->
+<div class="bg-bubbles" aria-hidden="true">
+  <div class="bubble" style="width:220px;height:220px;left:6%;top:8%;"></div>
+  <div class="bubble" style="width:160px;height:160px;right:6%;bottom:12%;"></div>
+</div>
+
+<div class="app">
+  <div>
+    <div class="header">
+      <div class="brand">
+        <div class="logo">💕</div>
+        <div>
+          <h1>Our Little Calendar</h1>
+          <div class="sub">cute, private, remembers everything</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="prevBtn" class="btn">◀</button>
+        <div style="min-width:160px; text-align:center">
+          <div id="monthLabel" class="monthName"></div>
+          <div class="small" id="monthShort"></div>
+        </div>
+        <button id="nextBtn" class="btn">▶</button>
+        <button id="todayBtn" class="btn ghost">Today</button>
+      </div>
+    </div>
+
+    <div class="calendarWrap" style="margin-top:12px">
+      <div class="grid" id="weekdayRow" style="margin-bottom:6px"></div>
+      <div id="calendarGrid" class="grid"></div>
+    </div>
+
+    <div class="footer">Tip: click any day to add a note or tap hearts — saving pops cute hearts 🎈</div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="stats">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700">Monthly Stats</div>
+          <div class="small" id="statsDetail">—</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700; font-size:18px" id="togetherCount">0</div>
+          <div class="small">days together</div>
+        </div>
+      </div>
+      <div style="height:8px"></div>
+      <div id="monthPercent" class="small">—</div>
+    </div>
+
+    <div class="legend">
+      <div class="legendItem">❤️ you</div>
+      <div class="legendItem">💖 gf</div>
+      <div class="legendItem">💞 both</div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-direction:column">
+      <button id="exportBtn" class="btn">Export JSON</button>
+      <label class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">
+        Import JSON
+        <input id="importFile" type="file" accept="application/json" style="display:none"/>
+      </label>
+      <button id="clearBtn" class="btn" style="background:transparent;border:1px dashed rgba(255,255,255,0.06)">Clear Month</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Modal -->
+<div id="overlay" class="overlay" style="display:none">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle">Add note</h3>
+    <div style="font-size:13px;color:var(--muted)" id="modalDate"></div>
+
+    <div class="toggles">
+      <button id="youBtn" class="toggleBtn">❤️ You</button>
+      <button id="gfBtn" class="toggleBtn">💖 GF</button>
+    </div>
+
+    <textarea id="noteField" class="noteField" placeholder="Write something sweet…"></textarea>
+
+    <div class="modalActions">
+      <div style="display:flex;gap:8px">
+        <button id="deleteBtn" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06)">Delete</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="closeBtn" class="btn">Close</button>
+        <button id="saveModalBtn" class="btn primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- storage & helpers ---------- */
+const KEY = 'cuteCoupleCalendarV2';
+let store = JSON.parse(localStorage.getItem(KEY)) || { days: {} }; // days: "YYYY-MM-DD": { you, gf, note }
+
+const monthLabel = document.getElementById('monthLabel');
+const monthShort = document.getElementById('monthShort');
+const calendarGrid = document.getElementById('calendarGrid');
+const weekdayRow = document.getElementById('weekdayRow');
+
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const todayBtn = document.getElementById('todayBtn');
+
+const overlay = document.getElementById('overlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalDate = document.getElementById('modalDate');
+const youBtn = document.getElementById('youBtn');
+const gfBtn = document.getElementById('gfBtn');
+const noteField = document.getElementById('noteField');
+const saveModalBtn = document.getElementById('saveModalBtn');
+const closeBtn = document.getElementById('closeBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+
+const statsDetail = document.getElementById('statsDetail');
+const togetherCount = document.getElementById('togetherCount');
+const monthPercent = document.getElementById('monthPercent');
+
+const exportBtn = document.getElementById('exportBtn');
+const importFile = document.getElementById('importFile');
+const clearBtn = document.getElementById('clearBtn');
+
+const WEEKDAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+let viewDate = new Date(); // will render current month view
+let activeKey = null;
+
+/* ---------- helpers ---------- */
+const toISO = d => d.toISOString().slice(0,10); // YYYY-MM-DD
+const pretty = k => new Date(k + 'T00:00:00').toDateString();
+
+function renderWeekdays(){
+  weekdayRow.innerHTML = '';
+  WEEKDAYS.forEach(w=>{
+    const div = document.createElement('div');
+    div.className = 'weekday';
+    div.textContent = w;
+    weekdayRow.appendChild(div);
+  });
+}
+
+/* ---------- calendar rendering ---------- */
+function renderCalendar(){
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  monthLabel.textContent = `${monthNames[month]} ${year}`;
+  monthShort.textContent = new Date(year, month, 1).toLocaleString(undefined, {month:'short', year:'numeric'});
+
+  calendarGrid.innerHTML = '';
+
+  const firstDay = new Date(year, month, 1);
+  const startWeekday = firstDay.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
+  // blanks
+  for(let i=0;i<startWeekday;i++){
+    const div = document.createElement('div'); div.className = 'day outside'; calendarGrid.appendChild(div);
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dd = new Date(year, month, d);
+    const key = toISO(dd);
+    const box = document.createElement('div');
+    box.className = 'day';
+    box.dataset.date = key;
+
+    // date number
+    const num = document.createElement('div'); num.className='dateNum'; num.textContent = d;
+    box.appendChild(num);
+
+    // today badge
+    if (key === toISO(new Date())) {
+      const tb = document.createElement('div'); tb.className='todayBadge'; tb.textContent='Today';
+      box.appendChild(tb);
+    }
+
+    // emoji
+    const emoji = document.createElement('div'); emoji.className='emoji';
+    const entry = store.days[key];
+    if (entry) {
+      if (entry.you && entry.gf) {
+        emoji.textContent = '💞';
+        emoji.classList.add('heartPulse','bouncy');
+      } else if (entry.you) {
+        emoji.textContent = '❤️';
+        emoji.classList.add('bouncy');
+      } else if (entry.gf) {
+        emoji.textContent = '💖';
+        emoji.classList.add('bouncy');
+      } else emoji.textContent = '';
+      // tooltip with note
+      let tip = pretty(key);
+      if (entry.note) tip += ' — ' + entry.note;
+      box.title = tip;
+      box.classList.add('hasData');
+    } else {
+      emoji.textContent = '';
+      box.title = pretty(key);
+      box.classList.remove('hasData');
+    }
+    box.appendChild(emoji);
+
+    // click to open modal
+    box.addEventListener('click', ()=> openModal(key));
+    calendarGrid.appendChild(box);
+  }
+
+  const totalCells = startWeekday + daysInMonth;
+  const trailing = (7 - (totalCells % 7)) % 7;
+  for(let i=0;i<trailing;i++){
+    const div = document.createElement('div'); div.className = 'day outside'; calendarGrid.appendChild(div);
+  }
+
+  renderStats();
+}
+
+/* ---------- stats ---------- */
+function renderStats(){
+  const year = viewDate.getFullYear(), month = viewDate.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let together = 0, recorded = 0;
+  for(let d=1; d<=daysInMonth; d++){
+    const key = toISO(new Date(year, month, d));
+    const e = store.days[key];
+    if (e) {
+      if (e.you && e.gf) together++;
+      if (e.you || e.gf || (e.note && e.note.trim())) recorded++;
+    }
+  }
+  togetherCount.textContent = together;
+  const percent = daysInMonth ? Math.round((together/daysInMonth)*100) : 0;
+  monthPercent.textContent = `${percent}% of month together`;
+  statsDetail.innerHTML = `Recorded: <b>${recorded}</b> / ${daysInMonth} days`;
+}
+
+/* ---------- modal ---------- */
+function openModal(key){
+  activeKey = key;
+  modalTitle.textContent = `Edit • ${pretty(key)}`;
+  modalDate.textContent = '';
+  const entry = store.days[key] || { you:false, gf:false, note:'' };
+  youBtn.classList.toggle('active', !!entry.you);
+  gfBtn.classList.toggle('active', !!entry.gf);
+  noteField.value = entry.note || '';
+  overlay.style.display = 'flex';
+  // focus field slightly later for smooth animation
+  setTimeout(()=> noteField.focus(), 180);
+}
+function closeModal(){ overlay.style.display = 'none'; activeKey = null; }
+
+youBtn.addEventListener('click', ()=> youBtn.classList.toggle('active'));
+gfBtn.addEventListener('click', ()=> gfBtn.classList.toggle('active'));
+
+/* ---------- save (with floating hearts + micro animations) ---------- */
+saveModalBtn.addEventListener('click', ()=>{
+  if (!activeKey) return;
+  const you = youBtn.classList.contains('active');
+  const gf = gfBtn.classList.contains('active');
+  const note = noteField.value.trim();
+
+  if (!you && !gf && !note) {
+    delete store.days[activeKey];
+  } else {
+    store.days[activeKey] = { you:!!you, gf:!!gf, note };
+  }
+
+  localStorage.setItem(KEY, JSON.stringify(store));
+  renderCalendar();
+  closeModal();
+
+  // floating hearts celebration
+  spawnFloatingHearts(7);
+});
+
+/* delete */
+deleteBtn.addEventListener('click', ()=>{
+  if (!activeKey) return;
+  if (store.days[activeKey]) {
+    delete store.days[activeKey];
+    localStorage.setItem(KEY, JSON.stringify(store));
+  }
+  renderCalendar();
+  closeModal();
+});
+
+/* close */
+closeBtn.addEventListener('click', closeModal);
+
+/* ---------- small floating hearts function ---------- */
+function spawnFloatingHearts(count = 6) {
+  for (let i = 0; i < count; i++) {
+    const h = document.createElement("div");
+    h.className = "floating-heart";
+    const choices = ["💖","💗","💞","💕","💓","❤️"];
+    h.innerText = choices[Math.floor(Math.random()*choices.length)];
+    // position near center-ish of the app
+    const appRect = document.querySelector('.app').getBoundingClientRect();
+    const left = appRect.left + appRect.width * (0.4 + (Math.random()*0.3));
+    const top = appRect.top + appRect.height * (0.45 + (Math.random()*0.12)) + (Math.random()*20 - 10);
+    h.style.left = `${left}px`;
+    h.style.top = `${top}px`;
+    h.style.transform = `rotate(${(Math.random()*40-20)}deg)`;
+    document.body.appendChild(h);
+    setTimeout(()=> h.remove(), 1500);
+  }
+}
+
+/* ---------- navigation ---------- */
+prevBtn.addEventListener('click', ()=>{
+  viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1);
+  renderCalendar();
+});
+nextBtn.addEventListener('click', ()=>{
+  viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1);
+  renderCalendar();
+});
+todayBtn.addEventListener('click', ()=>{
+  viewDate = new Date();
+  renderCalendar();
+});
+
+/* ---------- export / import / clear ---------- */
+exportBtn.addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(store, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'cute-calendar-backup.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+importFile.addEventListener('change', (e)=>{
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      // merge safely
+      store.days = Object.assign({}, store.days, obj.days || {});
+      localStorage.setItem(KEY, JSON.stringify(store));
+      renderCalendar();
+      alert('Imported & merged into current calendar.');
+    } catch(err) { alert('Invalid JSON'); }
+    importFile.value = ''; // reset
+  };
+  reader.readAsText(f);
+});
+
+clearBtn.addEventListener('click', ()=>{
+  if (!confirm('Clear all entries for this month? This cannot be undone.')) return;
+  const year = viewDate.getFullYear(), month = viewDate.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const key = toISO(new Date(year, month, d));
+    delete store.days[key];
+  }
+  localStorage.setItem(KEY, JSON.stringify(store));
+  renderCalendar();
+});
+
+/* ---------- init ---------- */
+renderWeekdays();
+viewDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+renderCalendar();
+
+/* keyboard: esc closes modal */
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'Escape' && overlay.style.display === 'flex') closeModal();
+});
+</script>
+</body>
+</html>
