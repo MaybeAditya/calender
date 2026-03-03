@@ -1,4 +1,3 @@
-// --- REGISTER PWA SERVICE WORKER ---
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(err => console.log('Service Worker Error', err));
 }
@@ -17,14 +16,12 @@ const firebaseConfig = {
   databaseURL: "https://realtime-database-a8d07-default-rtdb.firebaseio.com"
 };
 
-// --- IDENTIFY USER ---
 const urlParams = new URLSearchParams(window.location.search);
 const currentUser = urlParams.get('u') === 'vibhuti' ? 'Vibhuti' : 'Aditya';
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// DB References
 const dbRef = ref(db, 'calendar_data/'); 
 const missYouRef = ref(db, 'miss_you_data/');
 const songRef = ref(db, 'daily_yt_song/');
@@ -38,17 +35,14 @@ let initialMissYouLoad = true;
 let currentVideoId = "";
 let jarNotesArray = [];
 
-// --- UTILS ---
 function iso(d) { return d.toISOString().slice(0, 10); }
 function formatTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
 
-// --- DOM ELEMENTS ---
 const welcomeScreen = document.getElementById("welcomeScreen");
 const enterBtn = document.getElementById("enterBtn");
 const calendarGrid = document.getElementById("calendarGrid");
 const ytIframe = document.getElementById("ytIframe");
 
-// --- WELCOME, AUTOPLAY & NOTIFICATIONS ---
 enterBtn.onclick = () => {
   welcomeScreen.style.opacity = "0";
   setTimeout(() => welcomeScreen.style.display = "none", 800);
@@ -57,13 +51,11 @@ enterBtn.onclick = () => {
     ytIframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&loop=1&playlist=${currentVideoId}&controls=1`;
   }
 
-  // Request Native Notification Permission
   if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
     Notification.requestPermission();
   }
 };
 
-// --- CACHED YOUTUBE LOGIC ---
 const cachedVideoId = localStorage.getItem('cachedYtSong');
 if (cachedVideoId) {
   currentVideoId = cachedVideoId;
@@ -96,7 +88,6 @@ document.getElementById("saveSongBtn").onclick = () => {
   } else alert("Invalid YouTube link.");
 };
 
-// --- CALENDAR LOGIC ---
 function renderCalendar() {
   calendarGrid.innerHTML = "";
   const y = currentView.getFullYear(); const m = currentView.getMonth();
@@ -148,7 +139,6 @@ document.getElementById("nextBtn").onclick = () => { currentView.setMonth(curren
 document.getElementById("youBtn").onclick = (e) => e.target.classList.toggle("active");
 document.getElementById("gfBtn").onclick = (e) => e.target.classList.toggle("active");
 
-// --- POLAROID LOGIC (Image Compression & Upload) ---
 document.getElementById("addPhotoBtn").onclick = () => document.getElementById("photoModal").style.display = "flex";
 document.getElementById("closePhotoModalBtn").onclick = () => document.getElementById("photoModal").style.display = "none";
 
@@ -184,7 +174,7 @@ onValue(photoRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
     document.getElementById("polaroidPlaceholder").style.display = "none";
-    const photos = Object.values(data).sort((a, b) => b.time - a.time);
+    const photos = Object.entries(data).map(([key, value]) => ({ id: key, ...value })).sort((a, b) => b.time - a.time);
     const recentPhotos = photos.slice(0, 4);
     
     recentPhotos.forEach((photo, index) => {
@@ -192,6 +182,10 @@ onValue(photoRef, (snapshot) => {
       if (imgTag) {
         imgTag.src = photo.img;
         imgTag.style.display = "block";
+        imgTag.oncontextmenu = (e) => {
+          e.preventDefault();
+          if (confirm("Delete this memory? 💕")) set(ref(db, `photos/${photo.id}`), null);
+        };
       }
     });
 
@@ -202,7 +196,6 @@ onValue(photoRef, (snapshot) => {
   }
 });
 
-// --- REASONS I LOVE YOU JAR LOGIC ---
 const jarModal = document.getElementById("jarModal");
 const jarDisplay = document.getElementById("jarDisplay");
 const jarAuthor = document.getElementById("jarAuthor");
@@ -212,7 +205,6 @@ onValue(jarRef, (snapshot) => {
   if (snapshot.val()) {
     jarNotesArray = Object.values(snapshot.val());
     const latestNote = jarNotesArray[jarNotesArray.length - 1];
-    
     if (!initialJarLoad && document.hidden && Notification.permission === "granted" && latestNote.addedBy !== currentUser) {
       new Notification(`🍯 A new reason was added!`, { body: `${latestNote.addedBy} added a new note to the jar.` });
     }
@@ -232,13 +224,11 @@ document.getElementById("jarBtn").onclick = () => {
 
 document.getElementById("drawNoteBtn").onclick = () => {
   const partnerNotes = jarNotesArray.filter(note => note.addedBy !== currentUser);
-
   if (partnerNotes.length === 0) {
     jarDisplay.textContent = "Your partner hasn't dropped any notes in the jar yet! Tell them to get writing! 🥺";
     jarAuthor.textContent = "";
     return;
   }
-
   const randomNote = partnerNotes[Math.floor(Math.random() * partnerNotes.length)];
   jarDisplay.textContent = `"${randomNote.text}"`;
   jarAuthor.textContent = `- Added by ${randomNote.addedBy}`;
@@ -264,8 +254,6 @@ document.getElementById("saveJarNoteBtn").onclick = () => {
 document.getElementById("cancelJarWriteBtn").onclick = () => jarModal.style.display = "none";
 document.getElementById("closeJarBtn").onclick = () => jarModal.style.display = "none";
 
-
-// --- UNLIMITED MISS YOU NOTIFICATION LOGIC ---
 const missYouBtn = document.getElementById("missYouBtn");
 let lastProcessedMissYou = localStorage.getItem('lastSeenMissYou') || 0;
 
@@ -288,11 +276,8 @@ onValue(missYouRef, (snapshot) => {
       document.getElementById("missedToast").classList.add("show");
     } else {
       triggerRain(data.sender);
-      
       if (document.hidden && Notification.permission === "granted") {
-        new Notification(`🥺 Miss You!`, {
-          body: `${data.sender} was thinking about you at ${formatTime(data.timestamp)}. 💕`
-        });
+        new Notification(`🥺 Miss You!`, { body: `${data.sender} was thinking about you at ${formatTime(data.timestamp)}. 💕` });
       }
     }
   }
@@ -304,7 +289,6 @@ function triggerRain(senderName) {
   toast.textContent = `${senderName} is missing you! 🥺`;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 4000);
-
   for (let i = 0; i < 35; i++) {
     const drop = document.createElement("div");
     drop.className = "rainDrop"; 
@@ -316,32 +300,24 @@ function triggerRain(senderName) {
   }
 }
 
-document.getElementById("dismissToastBtn").onclick = () => {
-  document.getElementById("missedToast").classList.remove("show");
-};
+document.getElementById("dismissToastBtn").onclick = () => document.getElementById("missedToast").classList.remove("show");
 
-// --- TIME TOGETHER CLOCK ---
-// UPDATE THIS TO YOUR ACTUAL START DATE: YYYY-MM-DDTHH:MM:SS
-const anniversaryDate = new Date("2024-11-30T00:00:00").getTime(); 
+const anniversaryDate = new Date("2024-01-01T00:00:00").getTime(); 
 const timeTogetherDisplay = document.getElementById("timeTogether");
 
 if (timeTogetherDisplay) {
   setInterval(() => {
     const now = new Date().getTime();
     const distance = now - anniversaryDate;
-
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
     const format = (num) => num.toString().padStart(2, '0');
-
     timeTogetherDisplay.innerHTML = `⏱️ ${days}d : ${format(hours)}h : ${format(minutes)}m : ${format(seconds)}s`;
   }, 1000);
 }
 
-// Start App
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 WEEKDAYS.forEach(d => { const el = document.createElement("div"); el.textContent = d; document.getElementById("weekdayRow").appendChild(el); });
 setInterval(() => {
@@ -349,5 +325,4 @@ setInterval(() => {
   h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random() * 5 + 5) + 's';
   document.getElementById('bubbleContainer').appendChild(h); setTimeout(() => h.remove(), 10000);
 }, 800);
-
 renderCalendar();
