@@ -322,7 +322,7 @@ document.getElementById("dismissToastBtn").onclick = () => {
 
 // --- TIME TOGETHER CLOCK ---
 // UPDATE THIS TO YOUR ACTUAL START DATE: YYYY-MM-DDTHH:MM:SS
-const anniversaryDate = new Date("2024-01-01T00:00:00").getTime(); 
+const anniversaryDate = new Date("2024-11-30T00:00:00").getTime(); 
 const timeTogetherDisplay = document.getElementById("timeTogether");
 
 if (timeTogetherDisplay) {
@@ -349,4 +349,5 @@ setInterval(() => {
   h.style.left = Math.random() * 100 + 'vw'; h.style.animationDuration = (Math.random() * 5 + 5) + 's';
   document.getElementById('bubbleContainer').appendChild(h); setTimeout(() => h.remove(), 10000);
 }, 800);
+
 renderCalendar();
