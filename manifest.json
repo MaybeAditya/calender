@@ -7,9 +7,10 @@
   "theme_color": "#ff4d8d",
   "icons": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Twitter-logo.svg", 
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
