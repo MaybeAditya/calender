@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Our Cute Calendar 💖</title>
+  <title>Our Calendar 🖤</title>
   
   <link rel="manifest" href="./manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 
 <div id="welcomeScreen" class="welcome-screen">
-  <button id="enterBtn" class="enter-btn">Tap to Open 💕</button>
+  <button id="enterBtn" class="enter-btn">Enter the Shadows 🖤</button>
 </div>
 
 <div class="bg-bubbles" id="bubbleContainer"></div>
@@ -22,10 +22,10 @@
 <div class="app">
   <header class="header">
     <div class="brand">
-      <div class="logo">💕</div>
+      <div class="logo">🖤</div>
       <div>
         <h1 id="monthDisplay">Month Year <span id="editSongIcon" style="cursor: pointer; font-size: 0.8rem;" title="Change Song">✏️🎵</span></h1>
-        <p id="streakDisplay" style="color: #ff4d8d; font-weight: bold; font-size: 0.85rem; margin: 0;">🔥 0 Day Streak</p>
+        <p id="streakDisplay" style="color: var(--accent); font-weight: bold; font-size: 0.85rem; margin: 0;">🔥 0 Day Streak</p>
         <p id="timeTogether" style="font-size: 11px; color: var(--muted); margin-top: 2px; font-family: monospace;"></p>
       </div>
     </div>
@@ -43,8 +43,8 @@
   <aside class="sidebar" style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;">
     
     <div style="display: flex; gap: 15px; font-size: 12px; font-weight: bold;">
-      <div class="legendItem"><span>❤️</span> Aditya</div>
-      <div class="legendItem"><span>💖</span> Vibhuti</div>
+      <div class="legendItem"><span>🦇</span> Aditya</div>
+      <div class="legendItem"><span>🥀</span> Vibhuti</div>
       <div class="legendItem"><span>💞</span> Both</div>
     </div>
     
@@ -65,12 +65,12 @@
 
 <div id="overlay" class="overlay">
   <div class="modal">
-    <h3>Edit Day 💕</h3>
+    <h3>Edit Day 🖤</h3>
     <div class="toggles">
-      <button id="youBtn" class="toggleBtn">❤️ Aditya</button>
-      <button id="gfBtn" class="toggleBtn">💖 Vibhuti</button>
+      <button id="youBtn" class="toggleBtn">🦇 Aditya</button>
+      <button id="gfBtn" class="toggleBtn">🥀 Vibhuti</button>
     </div>
-    <textarea id="noteField" placeholder="Write something cute…"></textarea>
+    <textarea id="noteField" placeholder="Write something..."></textarea>
     <div class="modalActions">
       <button id="closeBtn" class="btn">Close</button>
       <button id="saveModalBtn" class="btn primary">Save Changes</button>
@@ -91,8 +91,8 @@
 
 <div id="jarModal" class="overlay">
   <div class="modal">
-    <h3 id="jarTitle">🍯 Reasons I Love You</h3>
-    <p id="jarDisplay" style="font-style: italic; margin: 15px 0; min-height: 50px;">Click 'Draw a Note' to read one!</p>
+    <h3 id="jarTitle">🕯️ Reasons I Love You</h3>
+    <p id="jarDisplay" style="font-style: italic; margin: 15px 0; min-height: 50px;">Click 'Draw a Note' to read one...</p>
     <p id="jarAuthor" style="font-size: 12px; color: var(--accent); text-align: right; margin-bottom: 15px;"></p>
     
     <textarea id="newJarNote" placeholder="Write a new reason here..." style="display: none;"></textarea>
@@ -121,13 +121,13 @@
   </div>
 </div>
 
-<button id="jarBtn" class="floatBtn jarBtn">🍯</button>
+<button id="jarBtn" class="floatBtn jarBtn" style="background: #2a2a2a; border: 1px solid #555;">🕯️</button>
 <button id="missYouBtn" class="floatBtn missYouBtn">🥺</button>
 
-<div id="toast" class="toast">Thinking of you! 🥰</div>
+<div id="toast" class="toast">Thinking of you! 🖤</div>
 <div id="missedToast" class="missed-toast">
   <span id="missedToastText"></span>
-  <button id="dismissToastBtn" class="dismiss-btn">❤️</button>
+  <button id="dismissToastBtn" class="dismiss-btn">🖤</button>
 </div>
 
 <div id="miniPlayer" class="mini-player">

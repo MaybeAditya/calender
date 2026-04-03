@@ -3,8 +3,8 @@
   "short_name": "Calendar",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#2b0a1f",
-  "theme_color": "#ff4d8d",
+  "background_color": "#050505",
+  "theme_color": "#8b0000",
   "icons": [
     {
       "src": "./icon.png",
