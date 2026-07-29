@@ -60,7 +60,6 @@ textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
 .btn:hover { transform: scale(1.05); }
 .btn.primary { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: white; box-shadow: 0 5px 15px rgba(255, 154, 162, 0.3); }
 
-/* Polaroid completely restyled for a cute sticker-book look */
 .polaroid { background: #fff; padding: 12px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); width: 180px; position: relative; margin-top: 10px; transition: 0.3s; transform: rotate(-2deg); }
 .polaroid:hover { transform: scale(1.05) rotate(0deg); z-index: 10; box-shadow: 0 12px 30px rgba(255, 154, 162, 0.2); }
 .photo-container { background: #FFF5F6; width: 100%; aspect-ratio: 1/1; overflow: hidden; display: flex; justify-content: center; align-items: center; border-radius: 12px; }
@@ -90,3 +89,10 @@ textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
 
 .mini-player { position: fixed; bottom: 20px; left: 20px; width: 160px; height: 90px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(255, 154, 162, 0.3); border: 3px solid #fff; z-index: 40; background: #FFF5F6; transition: transform 0.3s ease; }
 .mini-player:hover { transform: scale(1.05) rotate(2deg); }
+
+/* --- NEW KOREAN CULTURE CLASSES --- */
+.holiday-marker { position: absolute; top: 3px; right: 4px; font-size: 10px; }
+.lock-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px; }
+.lock-item { font-size: 26px; cursor: pointer; transition: transform 0.2s; background: none; border: none; }
+.lock-item:hover { transform: scale(1.2) rotate(-5deg); }
+.lock-message { font-style: italic; font-weight: 600; color: var(--text); padding: 15px; border-radius: 12px; background: rgba(255, 183, 178, 0.2); }
