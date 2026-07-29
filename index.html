@@ -26,7 +26,7 @@
       <div>
         <h1 id="monthDisplay">Month Year <span id="editSongIcon" style="cursor: pointer; font-size: 0.8rem;" title="Change Song">🎧</span></h1>
         <p id="streakDisplay" style="color: var(--accent); font-weight: bold; font-size: 0.85rem; margin: 0;">🍓 0 Day Streak</p>
-        <p id="timeTogether" style="font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600;"></p>
+        <p id="timeTogether" style="font-size: 11px; color: var(--text); margin-top: 2px; font-weight: 700;"></p>
       </div>
     </div>
     <div class="controls">
@@ -91,21 +91,20 @@
 
 <div id="jarModal" class="overlay">
   <div class="modal">
-    <h3 id="jarTitle">🍬 Love Jar</h3>
-    <p id="jarDisplay" style="font-style: italic; margin: 15px 0; min-height: 50px;">Click 'Pick a Candy' to read a reason why I love you!</p>
+    <h3 id="jarTitle">Namsan Love Locks 🔒</h3>
+    <div id="jarDisplay" style="margin: 15px 0; min-height: 50px;"></div>
     <p id="jarAuthor" style="font-size: 12px; color: var(--accent); text-align: right; margin-bottom: 15px;"></p>
     
-    <textarea id="newJarNote" placeholder="Write a sweet note here..." style="display: none;"></textarea>
+    <textarea id="newJarNote" placeholder="Write a sweet message to lock away..." style="display: none;"></textarea>
     
     <div class="modalActions" id="jarReadActions">
       <button id="closeJarBtn" class="btn">Close</button>
-      <button id="drawNoteBtn" class="btn primary">Pick a Candy</button>
-      <button id="showAddNoteBtn" class="btn">✏️ Add</button>
+      <button id="showAddNoteBtn" class="btn primary">Attach a Lock 🔒</button>
     </div>
 
     <div class="modalActions" id="jarWriteActions" style="display: none;">
       <button id="cancelJarWriteBtn" class="btn">Cancel</button>
-      <button id="saveJarNoteBtn" class="btn primary">Save Candy 🍬</button>
+      <button id="saveJarNoteBtn" class="btn primary">Lock it 🔒</button>
     </div>
   </div>
 </div>
@@ -121,7 +120,7 @@
   </div>
 </div>
 
-<button id="jarBtn" class="floatBtn jarBtn">🍬</button>
+<button id="jarBtn" class="floatBtn jarBtn">🔒</button>
 <button id="missYouBtn" class="floatBtn missYouBtn">💌</button>
 
 <div id="toast" class="toast">Thinking of you! 🧸💕</div>
