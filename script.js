@@ -88,10 +88,42 @@ document.getElementById("saveSongBtn").onclick = () => {
   } else alert("Invalid YouTube link.");
 };
 
+/* --- STREAK COUNTER LOGIC --- */
+function updateStreakDisplay() {
+  let streak = 0;
+  let checkDate = new Date();
+  let today = iso(checkDate);
+  let yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  let yesterday = iso(yesterdayDate);
+
+  if (!store[today] && !store[yesterday]) {
+    document.getElementById("streakDisplay").innerHTML = `🍓 0 Day Streak`;
+    return;
+  }
+  
+  if (!store[today] && store[yesterday]) {
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+
+  while (true) {
+    let key = iso(checkDate);
+    if (store[key] && (store[key].you || store[key].gf)) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else {
+      break; 
+    }
+  }
+
+  document.getElementById("streakDisplay").innerHTML = `🍓 ${streak} Day Streak${streak >= 3 ? ' 🔥' : ''}`;
+}
+
+/* --- CALENDAR WITH KOREAN DATES --- */
 function renderCalendar() {
   calendarGrid.innerHTML = "";
   const y = currentView.getFullYear(); const m = currentView.getMonth();
-  document.getElementById("monthDisplay").innerHTML = `${currentView.toLocaleDateString('default', { month: 'long', year: 'numeric' })} <span id="editSongIcon" style="cursor: pointer; font-size: 0.8rem;">✏️🎵</span>`;
+  document.getElementById("monthDisplay").innerHTML = `${currentView.toLocaleDateString('default', { month: 'long', year: 'numeric' })} <span id="editSongIcon" style="cursor: pointer; font-size: 0.8rem;">🎧</span>`;
   document.getElementById("editSongIcon").onclick = () => { document.getElementById("songModal").style.display = "flex"; };
 
   for (let i = 0; i < new Date(y, m, 1).getDay(); i++) calendarGrid.appendChild(document.createElement("div"));
@@ -101,20 +133,37 @@ function renderCalendar() {
     const cell = document.createElement("div");
     cell.className = "day"; cell.style.animationDelay = `${i * 0.02}s`;
     
+    // Check for Korean Holidays
+    let kHoliday = "";
+    let mNum = m + 1;
+    if (i === 14) {
+       if (mNum === 2) kHoliday = "🍫"; // Valentine's Day
+       else if (mNum === 3) kHoliday = "🍬"; // White Day
+       else if (mNum === 5) kHoliday = "🌹"; // Rose Day
+       else if (mNum === 9) kHoliday = "📸"; // Photo Day
+       else kHoliday = "💕"; // Standard 14th marker
+    }
+    if (mNum === 11 && i === 11) kHoliday = "🥢"; // Pepero Day
+    
     let marker = "";
     if (store[key] && (store[key].you || store[key].gf)) {
       cell.classList.add("hasData");
-      if (store[key].you && store[key].gf) marker = "💫";
-      else if (store[key].you) marker = "👨‍🚀";
-      else if (store[key].gf) marker = "👩‍🚀";
+      if (store[key].you && store[key].gf) marker = "💕";
+      else if (store[key].you) marker = "👦🏻";
+      else if (store[key].gf) marker = "👧🏻";
     }
-    cell.innerHTML = `<span>${i}</span><span class="marker">${marker}</span>`;
+    
+    cell.innerHTML = `<span>${i}</span><span class="holiday-marker">${kHoliday}</span><span class="marker">${marker}</span>`;
     cell.onclick = () => openModal(key);
     calendarGrid.appendChild(cell);
   }
 }
 
-onValue(dbRef, (snapshot) => { store = snapshot.val() || {}; renderCalendar(); });
+onValue(dbRef, (snapshot) => { 
+  store = snapshot.val() || {}; 
+  renderCalendar(); 
+  updateStreakDisplay();
+});
 
 function openModal(key) {
   activeDate = key;
@@ -163,7 +212,7 @@ document.getElementById("savePhotoBtn").onclick = () => {
 
       push(photoRef, { img: base64Img, addedBy: currentUser, time: Date.now() });
       document.getElementById("photoModal").style.display = "none";
-      alert("Photo beamed up successfully!");
+      alert("Photo saved successfully! 📸");
     };
     img.src = e.target.result;
   };
@@ -184,7 +233,7 @@ onValue(photoRef, (snapshot) => {
         imgTag.style.display = "block";
         imgTag.oncontextmenu = (e) => {
           e.preventDefault();
-          if (confirm("Delete this memory? 💫")) set(ref(db, `photos/${photo.id}`), null);
+          if (confirm("Delete this memory? ☁️")) set(ref(db, `photos/${photo.id}`), null);
         };
       }
     });
@@ -194,7 +243,7 @@ onValue(photoRef, (snapshot) => {
         navigator.serviceWorker.controller.postMessage({
           type: 'SHOW_NOTIFICATION',
           title: '📸 New memory added!',
-          body: `${photos[0].addedBy} just uploaded a new photo to your universe.`
+          body: `${photos[0].addedBy} just uploaded a new photo.`
         });
       }
     }
@@ -202,6 +251,7 @@ onValue(photoRef, (snapshot) => {
   }
 });
 
+/* --- NAMSAN LOVE LOCKS UI --- */
 const jarModal = document.getElementById("jarModal");
 const jarDisplay = document.getElementById("jarDisplay");
 const jarAuthor = document.getElementById("jarAuthor");
@@ -215,8 +265,8 @@ onValue(jarRef, (snapshot) => {
       if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: 'SHOW_NOTIFICATION',
-          title: '🌟 A new star was added!',
-          body: `${latestNote.addedBy} added a new reason why they love you.`
+          title: '🔒 A new lock was attached!',
+          body: `${latestNote.addedBy} left a secret message on the fence.`
         });
       }
     }
@@ -229,25 +279,34 @@ document.getElementById("jarBtn").onclick = () => {
   document.getElementById("jarReadActions").style.display = "flex";
   document.getElementById("jarWriteActions").style.display = "none";
   document.getElementById("newJarNote").style.display = "none";
-  jarDisplay.style.display = "block";
-  jarDisplay.textContent = "Click 'Catch a Star' to read one!";
   jarAuthor.textContent = "";
-};
-
-document.getElementById("drawNoteBtn").onclick = () => {
-  const partnerNotes = jarNotesArray.filter(note => note.addedBy !== currentUser);
-  if (partnerNotes.length === 0) {
-    jarDisplay.textContent = "Your partner hasn't left any stars in the jar yet! 🌟";
-    jarAuthor.textContent = "";
-    return;
+  
+  jarDisplay.innerHTML = "";
+  jarDisplay.className = "lock-grid"; 
+  
+  if (jarNotesArray.length === 0) {
+      jarDisplay.innerHTML = "<p style='text-align:center;'>The fence is empty! Attach the first lock. 🔒</p>";
+  } else {
+      jarNotesArray.forEach((note) => {
+         const lockBtn = document.createElement("button");
+         lockBtn.className = "lock-item";
+         // Randomize colors for the locks slightly for a cute UI
+         const colors = ["🔒", "🔓", "🔐"];
+         lockBtn.innerHTML = colors[Math.floor(Math.random() * colors.length)];
+         
+         lockBtn.onclick = () => {
+             jarDisplay.innerHTML = `<div class="lock-message">"${note.text}"</div>`;
+             jarDisplay.className = ""; 
+             jarAuthor.textContent = `- Locked by ${note.addedBy}`;
+         };
+         jarDisplay.appendChild(lockBtn);
+      });
   }
-  const randomNote = partnerNotes[Math.floor(Math.random() * partnerNotes.length)];
-  jarDisplay.textContent = `"${randomNote.text}"`;
-  jarAuthor.textContent = `- Added by ${randomNote.addedBy}`;
 };
 
 document.getElementById("showAddNoteBtn").onclick = () => {
-  jarDisplay.style.display = "none";
+  jarDisplay.innerHTML = "";
+  jarDisplay.className = "";
   jarAuthor.textContent = "";
   document.getElementById("newJarNote").style.display = "block";
   document.getElementById("jarReadActions").style.display = "none";
@@ -271,8 +330,8 @@ let lastProcessedMissYou = localStorage.getItem('lastSeenMissYou') || 0;
 
 missYouBtn.onclick = () => {
   set(missYouRef, { timestamp: Date.now(), sender: currentUser });
-  missYouBtn.textContent = "✨";
-  setTimeout(() => missYouBtn.textContent = "🔭", 1000);
+  missYouBtn.textContent = "🎀";
+  setTimeout(() => missYouBtn.textContent = "💌", 1000);
 };
 
 onValue(missYouRef, (snapshot) => {
@@ -284,7 +343,7 @@ onValue(missYouRef, (snapshot) => {
     localStorage.setItem('lastSeenMissYou', lastProcessedMissYou);
 
     if (initialMissYouLoad) {
-      document.getElementById("missedToastText").innerHTML = `💌 <b>${data.sender}</b> was missing you across the galaxy at ${formatTime(data.timestamp)}! ✨`;
+      document.getElementById("missedToastText").innerHTML = `💌 <b>${data.sender}</b> was missing you at ${formatTime(data.timestamp)}! 💕`;
       document.getElementById("missedToast").classList.add("show");
     } else {
       if (!document.hidden) {
@@ -292,8 +351,8 @@ onValue(missYouRef, (snapshot) => {
       } else if (document.hidden && Notification.permission === "granted" && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: 'SHOW_NOTIFICATION',
-          title: '🔭 Looking at the stars...',
-          body: `${data.sender} is missing you right now. Tap to connect. 🌌`
+          title: '💌 Thinking of you...',
+          body: `${data.sender} is missing you right now. 🎀`
         });
       }
     }
@@ -303,18 +362,16 @@ onValue(missYouRef, (snapshot) => {
 
 function triggerMeteorShower(senderName) {
   const toast = document.getElementById("toast");
-  toast.textContent = `${senderName} is sending you stardust! ✨`;
+  toast.textContent = `${senderName} is sending you love! 🎀`;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 4000);
   
   for (let i = 0; i < 30; i++) {
     const drop = document.createElement("div");
     drop.className = "rainDrop"; 
-    // Random mix of stars, shooting stars, and rings
     const shapes = ["🌸", "🎀", "🧸", "💕", "🍓"];
     drop.textContent = shapes[Math.floor(Math.random() * shapes.length)];
     
-    // Position across the top width, with a diagonal fall animation handled in CSS
     drop.style.left = Math.random() * 120 + "vw";
     drop.style.animationDuration = (Math.random() * 2 + 1) + "s";
     
@@ -325,6 +382,7 @@ function triggerMeteorShower(senderName) {
 
 document.getElementById("dismissToastBtn").onclick = () => document.getElementById("missedToast").classList.remove("show");
 
+/* --- 100-DAY BAEK-IL MILESTONE TIMER --- */
 const anniversaryDate = new Date("2024-01-01T00:00:00").getTime(); 
 const timeTogetherDisplay = document.getElementById("timeTogether");
 
@@ -332,26 +390,26 @@ if (timeTogetherDisplay) {
   setInterval(() => {
     const now = new Date().getTime();
     const distance = now - anniversaryDate;
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    const format = (num) => num.toString().padStart(2, '0');
-    timeTogetherDisplay.innerHTML = `⏱️ ${days}d : ${format(hours)}h : ${format(minutes)}m : ${format(seconds)}s`;
+    
+    // Calculate total days
+    const totalDays = Math.floor(distance / (1000 * 60 * 60 * 24));
+    
+    // Calculate next 100-day milestone
+    const nextMilestone = Math.ceil((totalDays + 1) / 100) * 100;
+    const daysUntil = nextMilestone - totalDays;
+
+    timeTogetherDisplay.innerHTML = `💕 Day ${totalDays} | ⏳ ${daysUntil} days until our ${nextMilestone}-Day!`;
   }, 1000);
 }
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 WEEKDAYS.forEach(d => { const el = document.createElement("div"); el.textContent = d; document.getElementById("weekdayRow").appendChild(el); });
 
-// STARFIELD ANIMATION
 setInterval(() => {
   const h = document.createElement('div'); h.className = 'heart'; 
   h.innerHTML = Math.random() > 0.5 ? '🌸' : '☁️';
   h.style.left = Math.random() * 100 + 'vw'; 
-  h.style.animationDuration = (Math.random() * 10 + 10) + 's'; // Slower, peaceful drift
+  h.style.animationDuration = (Math.random() * 10 + 10) + 's';
   document.getElementById('bubbleContainer').appendChild(h); 
   setTimeout(() => h.remove(), 20000);
 }, 600);
-
-renderCalendar();
