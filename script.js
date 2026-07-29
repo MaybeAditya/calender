@@ -311,7 +311,7 @@ function triggerMeteorShower(senderName) {
     const drop = document.createElement("div");
     drop.className = "rainDrop"; 
     // Random mix of stars, shooting stars, and rings
-    const shapes = ["⭐", "✨", "🌠", "🪐"];
+    const shapes = ["🌸", "🎀", "🧸", "💕", "🍓"];
     drop.textContent = shapes[Math.floor(Math.random() * shapes.length)];
     
     // Position across the top width, with a diagonal fall animation handled in CSS
@@ -347,7 +347,7 @@ WEEKDAYS.forEach(d => { const el = document.createElement("div"); el.textContent
 // STARFIELD ANIMATION
 setInterval(() => {
   const h = document.createElement('div'); h.className = 'heart'; 
-  h.innerHTML = Math.random() > 0.5 ? '⭐' : '✨';
+  h.innerHTML = Math.random() > 0.5 ? '🌸' : '☁️';
   h.style.left = Math.random() * 100 + 'vw'; 
   h.style.animationDuration = (Math.random() * 10 + 10) + 's'; // Slower, peaceful drift
   document.getElementById('bubbleContainer').appendChild(h); 
